@@ -270,7 +270,7 @@ jobs:
         fi
 
         PATCH_70="$PATCH_DIR/70_ksu_safety-${KSU_VARIANT,,}-${KERNEL_VER}.patch"
-        if [ -f "$PATCH_70" ]; then
+        if [ -s "$PATCH_70" ]; then
           if patch -p1 --no-backup-if-mismatch -d "$KERNEL_ROOT/$KSU_DIR" < "$PATCH_70"; then
             RESULTS="${RESULTS}70_ksu_safety|applied\n"
           else
