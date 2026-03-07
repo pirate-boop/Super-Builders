@@ -616,20 +616,22 @@ diff -ruN post-upstream/fs/open.c work-50/fs/open.c
  #include <linux/susfs_def.h>
  #endif
  
-@@ -402,6 +403,8 @@
+@@ -402,6 +403,10 @@
  extern bool __ksu_is_allow_uid_for_current(uid_t uid);
  extern int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode,
  			int *flags);
 +extern bool susfs_is_current_proc_umounted(void);
++#ifdef CONFIG_KSU_SUSFS_HIDDEN_NAME
 +extern bool susfs_is_hidden_name(const char *name, int namlen, uid_t caller_uid);
++#endif
  #endif
- 
+
  static long do_faccessat(int dfd, const char __user *filename, int mode, int flags)
-@@ -446,6 +449,31 @@
+@@ -446,6 +451,31 @@
  	if (res)
  		goto out;
  
-+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
++#ifdef CONFIG_KSU_SUSFS_HIDDEN_NAME
 +	if (current_uid().val >= 10000 &&
 +	    susfs_is_current_proc_umounted()) {
 +		struct dentry *_d = path.dentry;
@@ -657,7 +659,7 @@ diff -ruN post-upstream/fs/open.c work-50/fs/open.c
  	inode = d_backing_inode(path.dentry);
  
  	if ((mode & MAY_EXEC) && S_ISREG(inode->i_mode)) {
-@@ -1244,6 +1272,12 @@
+@@ -1244,6 +1274,12 @@
  	int fd = build_open_flags(how, &op);
  	struct filename *tmp;
  
@@ -1134,15 +1136,17 @@ diff -ruN post-upstream/fs/stat.c work-50/fs/stat.c
  #include <linux/susfs_def.h>
  #include <linux/version.h>
  #endif
-@@ -30,6 +31,7 @@
+@@ -30,6 +31,9 @@
  
  #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
  extern void susfs_sus_ino_for_generic_fillattr(unsigned long ino, struct kstat *stat);
-+extern bool susfs_is_hidden_name(const char *name, int namlen, uid_t caller_uid);
  #endif
- 
++#ifdef CONFIG_KSU_SUSFS_HIDDEN_NAME
++extern bool susfs_is_hidden_name(const char *name, int namlen, uid_t caller_uid);
++#endif
+
  /**
-@@ -52,8 +54,9 @@
+@@ -52,8 +56,9 @@
  		      struct kstat *stat)
  {
  #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
@@ -1154,7 +1158,7 @@ diff -ruN post-upstream/fs/stat.c work-50/fs/stat.c
  	{
  		susfs_sus_ino_for_generic_fillattr(inode->i_ino, stat);
  		stat->mode = inode->i_mode;
-@@ -247,6 +250,12 @@
+@@ -247,6 +252,12 @@
  	unsigned lookup_flags = 0;
  	int error;
  
@@ -1167,11 +1171,11 @@ diff -ruN post-upstream/fs/stat.c work-50/fs/stat.c
  #ifdef CONFIG_KSU_SUSFS
  	if (likely(susfs_is_current_proc_umounted()) || !ksu_su_compat_enabled) {
  		goto orig_flow;
-@@ -275,6 +284,32 @@
+@@ -275,6 +286,32 @@
  	if (error)
  		goto out;
  
-+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
++#ifdef CONFIG_KSU_SUSFS_HIDDEN_NAME
 +	if (current_uid().val >= 10000 &&
 +	    susfs_is_current_proc_umounted()) {
 +		struct dentry *_d = path.dentry;
@@ -1200,7 +1204,7 @@ diff -ruN post-upstream/fs/stat.c work-50/fs/stat.c
  	error = vfs_getattr(&path, stat, request_mask, flags);
  	stat->mnt_id = real_mount(path.mnt)->mnt_id;
  	stat->result_mask |= STATX_MNT_ID;
-@@ -488,6 +523,12 @@
+@@ -488,6 +525,12 @@
  	int empty = 0;
  	unsigned int lookup_flags = LOOKUP_EMPTY;
  
