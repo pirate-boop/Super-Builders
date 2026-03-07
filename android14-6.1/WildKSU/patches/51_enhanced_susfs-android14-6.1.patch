@@ -1,17 +1,3 @@
-diff -ruN a/arch/arm64/configs/gki_defconfig b/arch/arm64/configs/gki_defconfig
---- a/arch/arm64/configs/gki_defconfig	2026-03-07 16:32:21.740314171 +0100
-+++ b/arch/arm64/configs/gki_defconfig	2026-03-07 16:41:27.257938301 +0100
-@@ -775,3 +775,10 @@
- CONFIG_KUNIT_DEBUGFS=y
- # CONFIG_KUNIT_DEFAULT_ENABLED is not set
- # CONFIG_RUNTIME_TESTING_MENU is not set
-+CONFIG_TMPFS_XATTR=y
-+CONFIG_TMPFS_POSIX_ACL=y
-+CONFIG_KSU_SUSFS_SUS_KSTAT_REDIRECT=y
-+CONFIG_KSU_SUSFS_UNICODE_FILTER=y
-+CONFIG_KSU_SUSFS_UID_GATED_HIDING=y
-+CONFIG_KSU_SUSFS_HIDDEN_NAME=y
-+CONFIG_KSU_SUSFS_HARDENED=y
 diff -ruN a/fs/Kconfig b/fs/Kconfig
 --- a/fs/Kconfig	2026-03-07 16:32:21.906120792 +0100
 +++ b/fs/Kconfig	2026-03-07 16:47:56.973232698 +0100

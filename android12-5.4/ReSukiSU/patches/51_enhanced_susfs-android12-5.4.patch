@@ -1,13 +1,3 @@
-diff '--color=auto' -ruN a/arch/arm64/configs/gki_defconfig b/arch/arm64/configs/gki_defconfig
---- a/arch/arm64/configs/gki_defconfig	2026-03-07 18:48:13.882762271 +0100
-+++ b/arch/arm64/configs/gki_defconfig	2026-03-07 19:03:12.117325627 +0100
-@@ -646,3 +646,6 @@
- CONFIG_TMPFS_POSIX_ACL=y
- CONFIG_KSU_SUSFS_SUS_KSTAT_REDIRECT=y
- CONFIG_KSU_SUSFS_UNICODE_FILTER=y
-+CONFIG_KSU_SUSFS_UID_GATED_HIDING=y
-+CONFIG_KSU_SUSFS_HIDDEN_NAME=y
-+CONFIG_KSU_SUSFS_HARDENED=y
 diff '--color=auto' -ruN a/fs/Kconfig b/fs/Kconfig
 --- a/fs/Kconfig	2026-03-07 18:48:14.058758336 +0100
 +++ b/fs/Kconfig	2026-03-07 18:55:11.888242585 +0100

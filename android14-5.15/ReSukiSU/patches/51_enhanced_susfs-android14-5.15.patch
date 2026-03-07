@@ -1,17 +1,3 @@
-diff '--color=auto' -ruN /mnt/external/claudetest-gki-build/patch-workspace/restructure-android14-5.15/post-upstream/arch/arm64/configs/gki_defconfig /mnt/external/claudetest-gki-build/patch-workspace/restructure-android14-5.15/work-50/arch/arm64/configs/gki_defconfig
---- a/arch/arm64/configs/gki_defconfig	2026-03-06 22:18:23.209019161 +0100
-+++ b/arch/arm64/configs/gki_defconfig	2026-03-07 15:42:51.459771909 +0100
-@@ -742,3 +742,10 @@
- CONFIG_HIST_TRIGGERS=y
- CONFIG_PID_IN_CONTEXTIDR=y
- # CONFIG_RUNTIME_TESTING_MENU is not set
-+CONFIG_TMPFS_XATTR=y
-+CONFIG_TMPFS_POSIX_ACL=y
-+CONFIG_KSU_SUSFS_SUS_KSTAT_REDIRECT=y
-+CONFIG_KSU_SUSFS_UNICODE_FILTER=y
-+CONFIG_KSU_SUSFS_UID_GATED_HIDING=y
-+CONFIG_KSU_SUSFS_HIDDEN_NAME=y
-+CONFIG_KSU_SUSFS_HARDENED=y
 diff '--color=auto' -ruN /mnt/external/claudetest-gki-build/patch-workspace/restructure-android14-5.15/post-upstream/fs/Kconfig /mnt/external/claudetest-gki-build/patch-workspace/restructure-android14-5.15/work-50/fs/Kconfig
 --- a/fs/Kconfig	2026-03-06 22:18:22.688685901 +0100
 +++ b/fs/Kconfig	2026-03-07 15:42:51.459913754 +0100

@@ -1,14 +1,3 @@
-diff -ruN a/arch/arm64/configs/gki_defconfig b/arch/arm64/configs/gki_defconfig
---- a/arch/arm64/configs/gki_defconfig	2026-03-05 12:29:58.805231034 +0100
-+++ b/arch/arm64/configs/gki_defconfig	2026-03-05 12:35:34.883739427 +0100
-@@ -699,3 +699,7 @@
- CONFIG_HIST_TRIGGERS=y
- CONFIG_FUNCTION_ERROR_INJECTION=y
- # CONFIG_RUNTIME_TESTING_MENU is not set
-+CONFIG_TMPFS_XATTR=y
-+CONFIG_TMPFS_POSIX_ACL=y
-+CONFIG_KSU_SUSFS_SUS_KSTAT_REDIRECT=y
-+CONFIG_KSU_SUSFS_UNICODE_FILTER=y
 diff -ruN a/fs/Kconfig b/fs/Kconfig
 --- a/fs/Kconfig	2026-03-05 12:29:58.897230110 +0100
 +++ b/fs/Kconfig	2026-03-05 14:01:19.962985235 +0100
