@@ -27,6 +27,18 @@ on:
         description: "Promote ZRAM to builtin (=y)"
         type: boolean
         default: false
+      add_bbg:
+        description: "Add Baseband Guard"
+        type: boolean
+        default: true
+      add_ptrace_fix:
+        description: "Apply ptrace leak fix (kernels < 5.16)"
+        type: boolean
+        default: true
+      add_perf_patches:
+        description: "Apply WildKernels performance patches"
+        type: boolean
+        default: true
       lto_mode:
         description: "LTO mode"
         type: choice
@@ -57,6 +69,10 @@ on:
       add_zram:
         type: boolean
         default: false
+      add_bbg:
+        description: "Add Baseband Guard"
+        type: boolean
+        default: true
       add_ptrace_fix:
         description: "Apply ptrace leak fix (kernels < 5.16)"
         type: boolean
@@ -342,6 +358,12 @@ jobs:
         ADD_PERF: ${{ inputs.add_perf_patches }}
       run: |
         bash "$GITHUB_WORKSPACE/android12-5.10/build-helpers/apply-kernel-patches.sh" . "$KERNEL_VER" "$GITHUB_WORKSPACE/kernel_patches"
+
+    - name: Setup Baseband Guard
+      if: inputs.add_bbg
+      working-directory: ${{ env.KERNEL_COMMON }}
+      run: |
+        bash "$GITHUB_WORKSPACE/android12-5.10/build-helpers/setup-bbg.sh" "$SYNC_DIR/kernel_platform" "$DEFCONFIG" "$DEFCONFIG_FRAGMENT"
 
     - name: Assemble Defconfig
       working-directory: ${{ env.SYNC_DIR }}
