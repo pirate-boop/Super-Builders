@@ -218,7 +218,11 @@ jobs:
       working-directory: ${{ env.KERNEL_ROOT }}/${{ env.KSU_DIR }}
       run: |
         PATCH="$GITHUB_WORKSPACE/$VERSION_DIR/KernelSU-Next/patches/70_ksu_safety-kernelsu-next-${KERNEL_VER}.patch"
-        [ -s "$PATCH" ] && patch -p1 --no-backup-if-mismatch < "$PATCH" || echo "No 70_ patch needed"
+        if [ -s "$PATCH" ]; then
+          patch -p1 --no-backup-if-mismatch < "$PATCH"
+        else
+          echo "No 70_ patch needed"
+        fi
 
     - name: Apply ZeroMount Patch
       if: inputs.add_zeromount && inputs.add_susfs
