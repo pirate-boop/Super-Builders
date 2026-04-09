@@ -195,7 +195,7 @@ diff -ruN '--exclude=include' clean-kernel/feature/kernel_umount.c work-kernel/f
  	return 0;
 diff -ruN '--exclude=include' clean-kernel/feature/sucompat.c work-kernel/feature/sucompat.c
 --- a/kernel/feature/sucompat.c	2026-04-09 11:57:48.450082382 +0100
-+++ b/kernel/feature/sucompat.c	2026-04-09 13:54:27.285651917 +0100
++++ b/kernel/feature/sucompat.c	2026-04-09 14:24:35.069714756 +0100
 @@ -11,6 +11,12 @@
  #include <linux/version.h>
  #include <linux/sched/task_stack.h>
@@ -217,7 +217,7 @@ diff -ruN '--exclude=include' clean-kernel/feature/sucompat.c work-kernel/featur
  int ksu_handle_faccessat(int *dfd, const char __user **filename_user,
  		int *mode, int *__unused_flags)
  {
-@@ -118,6 +125,70 @@
+@@ -118,6 +125,130 @@
  
  	return 0;
  }
@@ -250,6 +250,66 @@ diff -ruN '--exclude=include' clean-kernel/feature/sucompat.c work-kernel/featur
 +		return 0;
 +	}
 +	return 1;
++}
++
++int ksu_handle_devpts(struct inode *inode)
++{
++	if (!current->mm) {
++		return 0;
++	}
++
++	uid_t uid = current_uid().val;
++	if (uid % 100000 < 10000) {
++		return 0;
++	}
++
++	if (!ksu_is_allow_uid_for_current(uid))
++		return 0;
++
++	if (ksu_file_sid) {
++		struct inode_security_struct *sec = selinux_inode(inode);
++		if (sec) {
++			sec->sid = ksu_file_sid;
++		}
++	}
++
++	return 0;
++}
++
++int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr,
++				 void *__never_use_argv,
++				 void *__never_use_envp,
++				 int *__never_use_flags)
++{
++	struct filename *filename;
++
++	if (unlikely(!filename_ptr))
++		return 0;
++
++	filename = *filename_ptr;
++	if (IS_ERR(filename)) {
++		return 0;
++	}
++
++	if (!ksu_handle_execveat_init(filename->name)) {
++		return 0;
++	}
++
++	if (likely(memcmp(filename->name, su_path, sizeof(su_path))))
++		return 0;
++
++	pr_info("ksu_handle_execveat_sucompat: su found\n");
++	memcpy((void *)filename->name, ksud_path, sizeof(ksud_path));
++
++	escape_with_root_profile();
++
++	return 0;
++}
++
++int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
++			void *envp, int *flags)
++{
++	return ksu_handle_execveat_sucompat(fd, filename_ptr, argv, envp, flags);
 +}
 +
 +int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode,
@@ -411,7 +471,7 @@ diff -ruN '--exclude=include' clean-kernel/policy/app_profile.c work-kernel/poli
      return 0;
 diff -ruN '--exclude=include' clean-kernel/runtime/ksud_integration.c work-kernel/runtime/ksud_integration.c
 --- a/kernel/runtime/ksud_integration.c	2026-04-09 11:57:48.451373296 +0100
-+++ b/kernel/runtime/ksud_integration.c	2026-04-09 12:56:10.270955708 +0100
++++ b/kernel/runtime/ksud_integration.c	2026-04-09 14:16:31.248384849 +0100
 @@ -143,6 +143,10 @@
      return false;
  }
@@ -442,12 +502,14 @@ diff -ruN '--exclude=include' clean-kernel/runtime/ksud_integration.c work-kerne
  static void ksu_handle_sys_read(unsigned int fd, char __user **buf_ptr, size_t *count_ptr)
  {
      struct file *file = fget(fd);
-@@ -325,6 +334,35 @@
+@@ -325,6 +334,37 @@
      ksu_install_rc_hook(file);
      fput(file);
  }
 +#else
 +bool ksu_init_rc_hook __read_mostly = true;
++bool ksu_input_hook __read_mostly = false;
++bool ksu_execveat_hook __read_mostly = true;
 +
 +__attribute__((cold)) void ksu_handle_sys_read(unsigned int fd)
 +{
@@ -478,7 +540,7 @@ diff -ruN '--exclude=include' clean-kernel/runtime/ksud_integration.c work-kerne
  
  static unsigned int volumedown_pressed_count = 0;
  
-@@ -402,6 +440,7 @@
+@@ -402,6 +442,7 @@
      ksu_handle_execveat_ksud(path, &argv);
  }
  
@@ -486,7 +548,7 @@ diff -ruN '--exclude=include' clean-kernel/runtime/ksud_integration.c work-kerne
  static long (*orig_sys_read)(const struct pt_regs *regs);
  static long ksu_sys_read(const struct pt_regs *regs)
  {
-@@ -450,6 +489,7 @@
+@@ -450,6 +491,7 @@
  
      return ret;
  }
@@ -494,7 +556,7 @@ diff -ruN '--exclude=include' clean-kernel/runtime/ksud_integration.c work-kerne
  
  static int input_handle_event_handler_pre(struct kprobe *p, struct pt_regs *regs)
  {
-@@ -471,9 +511,14 @@
+@@ -471,9 +513,14 @@
  
  static void stop_init_rc_hook()
  {
@@ -509,7 +571,7 @@ diff -ruN '--exclude=include' clean-kernel/runtime/ksud_integration.c work-kerne
  }
  
  void ksu_stop_input_hook_runtime(void)
-@@ -492,8 +537,10 @@
+@@ -492,8 +539,10 @@
  {
      int ret;
  
